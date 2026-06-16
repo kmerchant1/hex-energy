@@ -18,6 +18,7 @@ Usage: python ml/build_labels.py
 """
 from __future__ import annotations
 
+import re
 import sys
 from difflib import SequenceMatcher
 from pathlib import Path
@@ -48,6 +49,18 @@ def _name_key(s) -> str:
     return " ".join(w for w in raw.split() if w not in _STOP)
 
 
+_VOLT_RE = re.compile(r"(\d+(?:\.\d+)?)\s*kv", re.IGNORECASE)
+
+
+def _poi_voltage(s) -> float | None:
+    """Parse the grid-connection voltage (kV) embedded in a POI name, e.g.
+    'Crane Switch 138kV' -> 138. Leakage-free site-level signal (both classes)."""
+    if not s:
+        return None
+    vals = [float(v) for v in _VOLT_RE.findall(str(s))]
+    return max(vals) if vals else None
+
+
 def main() -> None:
     eng = engine()
 
@@ -58,13 +71,14 @@ def main() -> None:
     # county-level training, so we exclude them here. `region` is kept as a feature.
     q = pd.read_sql(
         """
-        SELECT q_id, q_status, county, fips_code, project_name, type_clean,
+        SELECT q_id, q_status, county, fips_code, project_name, poi_name, type_clean,
                mw_1 AS mw, q_year, region
         FROM queue_lbnl
         WHERE LEFT(fips_code, 2) = '48' AND q_status IN ('operational', 'withdrawn')
         """,
         eng,
     )
+    q["poi_voltage_kv"] = q["poi_name"].map(_poi_voltage)
     q["label"] = (q["q_status"] == "operational").astype(int)
     q = q.reset_index(drop=True)
     q["project_id"] = q.index + 1  # surrogate key (q_id has dupes / 'not assigned')
@@ -111,8 +125,8 @@ def main() -> None:
 
     out = q[[
         "project_id", "q_id", "label", "q_status", "fips_code", "county",
-        "project_name", "region", "type_clean", "mw", "q_year", "eia_plant_code",
-        "latitude", "longitude",
+        "project_name", "poi_name", "poi_voltage_kv", "region", "type_clean",
+        "mw", "q_year", "eia_plant_code", "latitude", "longitude",
     ]]
     out.to_sql("labels", eng, if_exists="replace", index=False)
 

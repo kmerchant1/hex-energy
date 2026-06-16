@@ -31,7 +31,7 @@ FEATURES = [
 
 JOIN_SQL = """
     SELECT l.project_id, l.q_id, l.label, l.fips_code, l.county, l.region,
-           l.type_clean, l.mw, l.q_year,
+           l.type_clean, l.mw, l.q_year, l.poi_voltage_kv,
            cf.area_km2, cf.dist_line_mi, cf.dist_hv_line_mi, cf.dist_substation_mi,
            cf.line_km_per_1000km2, cf.substation_count, cf.substation_per_1000km2,
            cf.max_substation_kv, cf.queued_mw, cf.wetland_pct, cf.floodway_pct,
