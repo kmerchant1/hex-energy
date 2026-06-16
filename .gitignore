@@ -1,0 +1,40 @@
+# Data — never commit large geospatial files
+data/raw/
+data/processed/
+*.shp
+*.shx
+*.dbf
+*.prj
+*.gpkg
+*.gdb/
+*.tif
+*.tiff
+*.geojson
+*.pmtiles
+*.zip
+!data/raw/.gitkeep
+
+# Model artifacts
+ml/artifacts/
+*.json.model
+*.pkl
+*.joblib
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.ipynb_checkpoints/
+*.egg-info/
+
+# Env / secrets
+.env
+*.local
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Docker volumes (if bind-mounted locally)
+db/pgdata/

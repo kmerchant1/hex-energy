@@ -1,0 +1,49 @@
+# Hex Energy — Texas Siting Intelligence
+# Conda env for P0 (data ingestion) + P1 (model). API/frontend deps added in P3.
+# Create:  conda env create -f environment.yml
+# Update:  conda env update -f environment.yml --prune
+# Activate: conda activate hex-energy
+name: hex-energy
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+
+  # --- Geospatial stack (binary deps — why we use conda, not pip) ---
+  - gdal
+  - geopandas
+  - rasterio
+  - rasterstats
+  - shapely
+  - fiona
+  - pyproj
+  - h3-py
+
+  # --- Database ---
+  - psycopg2
+  - sqlalchemy
+  - geoalchemy2
+
+  # --- Data wrangling ---
+  - pandas
+  - numpy
+  - openpyxl          # read .xlsx (LBNL, EIA, ERCOT)
+  - xlrd              # read legacy .xls
+  - requests
+  - tqdm
+  - python-dotenv
+
+  # --- ML (P1) ---
+  - scikit-learn
+  - xgboost
+  - lightgbm          # alternative model (testing strategy Stage 10)
+  - shap
+  - matplotlib        # reliability curves, metrics plots
+
+  # --- Notebooks for exploration ---
+  - jupyterlab
+
+  # --- pip-only ---
+  - pip
+  - pip:
+      - gridstatus     # ERCOT GIS report parsing

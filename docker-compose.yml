@@ -1,0 +1,31 @@
+# Hex Energy — local data + cache services
+# Up:    docker compose up -d
+# Down:  docker compose down           (keeps data)
+# Reset: docker compose down -v        (DELETES the database volume)
+services:
+  postgis:
+    image: postgis/postgis:16-3.4
+    container_name: hex-postgis
+    environment:
+      POSTGRES_USER: hex
+      POSTGRES_PASSWORD: hex
+      POSTGRES_DB: hex
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hex -d hex"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: hex-redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  pgdata:
